@@ -105,9 +105,16 @@ class CalculatorViewModelTest {
         assertEquals("6", viewModel.display.get())
     }
     @Test
-    fun testAddOperationNeg(){
+    fun testAddOperationNegPostfix(){
         viewModel.display.set("12")
         viewModel.addOperation(Operation.NEG)
+        viewModel.compute()
+        assertEquals("-12", viewModel.display.get())
+    }
+    @Test
+    fun testAddOperationNegPrefix(){
+        viewModel.addOperation(Operation.NEG)
+        viewModel.display.set("12")
         viewModel.compute()
         assertEquals("-12", viewModel.display.get())
     }
