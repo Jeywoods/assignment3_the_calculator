@@ -25,9 +25,15 @@ class CalculatorViewModel: BaseObservable(), Calculator {
     override fun addOperation(op: Operation) {
         if(previousOperation != null)
             compute()
-        firstNumber = display.get()?.toDoubleOrNull() ?: 0.0
-        previousOperation = op
-        display.set("0")
+        if(op == Operation.NEG){
+            firstNumber = display.get()?.toDoubleOrNull() ?: 0.0
+            previousOperation = op
+        }
+        else {
+            firstNumber = display.get()?.toDoubleOrNull() ?: 0.0
+            previousOperation = op
+            display.set("0")
+        }
     }
 
     override fun compute() {
@@ -46,7 +52,7 @@ class CalculatorViewModel: BaseObservable(), Calculator {
             Operation.NEG -> -secondNumber
             null -> secondNumber
         }
-        display.set(result.toString())
+        display.set(resultFormated(result))
         firstNumber = result
         previousOperation = null
     }
@@ -60,5 +66,11 @@ class CalculatorViewModel: BaseObservable(), Calculator {
         firstNumber = 0.0
         secondNumber = 0.0
         previousOperation = null
+    }
+    private fun resultFormated(value: Double): String{
+        return if(value == value.toInt().toDouble())
+            value.toInt().toString()
+        else
+            value.toString()
     }
 }

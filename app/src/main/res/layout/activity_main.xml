@@ -24,6 +24,7 @@
             android:background="#EFEFEF"
             android:gravity="end"
             android:text="@{viewModel.display}"
+            android:textColor="#000000"
             android:textSize="32sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
