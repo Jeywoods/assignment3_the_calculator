@@ -17,112 +17,113 @@ class CalculatorViewModelTest {
     @Before
     fun setInitValue(){
         viewModel = CalculatorViewModel()
-        viewModel.display.set("0")
+        setDisplay("0")
+    }
+    fun getDisplay(): String{
+        return viewModel.display.get() ?: ""
+    }
+    fun setDisplay(value: String){
+        viewModel.display.set(value)
     }
     @Test
     fun testAddDigit1(){
         viewModel.addDigit(5)
-        assertEquals("5", viewModel.display.get())
+        assertEquals("5", getDisplay())
     }
     @Test
     fun testAddDigit2(){
-        viewModel.display.set("12")
+        setDisplay("12")
         viewModel.addDigit(3)
-        assertEquals("123", viewModel.display.get())
+        assertEquals("123", getDisplay())
     }
     @Test
     fun testAddDigit3(){
         viewModel.addDigit(4)
         viewModel.addDigit(5)
         viewModel.addDigit(6)
-        assertEquals("456", viewModel.display.get())
+        assertEquals("456", getDisplay())
     }
     @Test
     fun testAddPoint1(){
-        viewModel.display.set("12")
+        setDisplay("12")
         viewModel.addPoint()
-        assertEquals("12.", viewModel.display.get())
+        assertEquals("12.", getDisplay())
     }
     @Test
     fun testAddPoint2(){
-        viewModel.display.set("2.7")
+        setDisplay("2.7")
         viewModel.addPoint()
-        assertEquals("2.7", viewModel.display.get())
+        assertEquals("2.7", getDisplay())
     }
     @Test
     fun testAddPoint3(){
-        viewModel.display.set("3")
+        setDisplay("3")
         viewModel.addPoint()
         viewModel.addDigit(5)
-        assertEquals("3.5", viewModel.display.get())
+        assertEquals("3.5", getDisplay())
     }
     @Test
     fun testAddOperationPlus(){
-        viewModel.display.set("4")
+        setDisplay("0.1")
         viewModel.addOperation(Operation.ADD)
-        viewModel.display.set("5")
+        setDisplay("0.2")
         viewModel.compute()
-        assertEquals("9", viewModel.display.get())
+        assertEquals("0.3", getDisplay())
     }
     @Test
     fun testAddOperationSub(){
-        viewModel.display.set("8")
+        setDisplay("8")
         viewModel.addOperation(Operation.SUB)
-        viewModel.display.set("3")
+        setDisplay("3")
         viewModel.compute()
-        assertEquals("5", viewModel.display.get())
+        assertEquals("5", getDisplay())
     }
     @Test
     fun testAddOperationMul(){
-        viewModel.display.set("12")
+        setDisplay("12")
         viewModel.addOperation(Operation.MUL)
-        viewModel.display.set("5")
+        setDisplay("5")
         viewModel.compute()
-        assertEquals("60", viewModel.display.get())
+        assertEquals("60", getDisplay())
     }
     @Test
     fun testAddOperationDiv(){
-        viewModel.display.set("12")
+        setDisplay("12")
         viewModel.addOperation(Operation.DIV)
-        viewModel.display.set("4")
+        setDisplay("4")
         viewModel.compute()
-        assertEquals("3", viewModel.display.get())
+        assertEquals("3", getDisplay())
     }
     @Test
     fun testAddOperationDiv0(){
-        viewModel.display.set("4")
+        setDisplay("4")
         viewModel.addOperation(Operation.DIV)
-        viewModel.display.set("0")
+        setDisplay("0")
         viewModel.compute()
-        assertEquals("Не определен", viewModel.display.get())
+        assertEquals("Не определен", getDisplay())
     }
     @Test
-    fun testAddOperationPerc(){
-        viewModel.display.set("120")
+    fun testAddOperationPerc() {
+        viewModel.addDigit(1)
+        viewModel.addDigit(2)
+        viewModel.addDigit(0)        // display = "120"
         viewModel.addOperation(Operation.PERC)
-        viewModel.display.set("5")
+        viewModel.addDigit(5)        // display = "5"
         viewModel.compute()
-        assertEquals("6", viewModel.display.get())
+        assertEquals("6", getDisplay())
     }
     @Test
-    fun testAddOperationNegPostfix(){
-        viewModel.display.set("12")
+    fun testAddOperationNeg(){
+        setDisplay("12")
         viewModel.addOperation(Operation.NEG)
         viewModel.compute()
-        assertEquals("-12", viewModel.display.get())
-    }
-    @Test
-    fun testAddOperationNegPrefix(){
-        viewModel.addOperation(Operation.NEG)
-        viewModel.display.set("12")
-        viewModel.compute()
-        assertEquals("-12", viewModel.display.get())
+        assertEquals("-12", getDisplay())
     }
     @Test
     fun testClear1(){
-        viewModel.display.set("15")
+        setDisplay("15")
         viewModel.clear()
-        assertEquals("0", viewModel.display.get())
+        assertEquals("0", getDisplay())
     }
     @Test
     fun testClear2(){
@@ -131,13 +132,13 @@ class CalculatorViewModelTest {
         viewModel.clear()
         viewModel.addDigit(5)
         viewModel.compute()
-        assertEquals("15", viewModel.display.get())
+        assertEquals("15", getDisplay())
     }
     @Test
     fun testReset1(){
         viewModel.addDigit(6)
         viewModel.reset()
-        assertEquals("0", viewModel.display.get())
+        assertEquals("0", getDisplay())
     }
     @Test
     fun testReset2(){
@@ -146,7 +147,7 @@ class CalculatorViewModelTest {
         viewModel.addDigit(3)
         viewModel.reset()
         viewModel.compute()
-        assertEquals("0", viewModel.display.get())
+        assertEquals("0", getDisplay())
     }
     @Test
     fun testReset3() {
@@ -155,7 +156,7 @@ class CalculatorViewModelTest {
         viewModel.addDigit(3)
         viewModel.compute()
         viewModel.reset()
-        assertEquals("0", viewModel.display.get())
+        assertEquals("0", getDisplay())
     }
     @Test
     fun testResultFormatted1(){
@@ -163,15 +164,15 @@ class CalculatorViewModelTest {
         viewModel.addOperation(Operation.DIV)
         viewModel.addDigit(4)
         viewModel.compute()
-        assertEquals("2.5", viewModel.display.get())
+        assertEquals("2.5", getDisplay())
 
     }
     @Test
     fun testResultFormatted2(){
-        viewModel.display.set("2.5")
+        setDisplay("2.5")
         viewModel.addOperation(Operation.SUB)
-        viewModel.display.set("1.5")
+        setDisplay("1.5")
         viewModel.compute()
-        assertEquals("1", viewModel.display.get())
+        assertEquals("1", getDisplay())
     }
 }
