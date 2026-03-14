@@ -2,57 +2,77 @@ package mmcs.assignment3_calculator.viewmodel
 
 import androidx.databinding.BaseObservable
 import androidx.databinding.ObservableField
+import java.math.BigDecimal
+import java.math.RoundingMode
 
-class CalculatorViewModel: BaseObservable(), Calculator {
-    override var display = ObservableField<String>()
+class CalculatorViewModel : BaseObservable(), Calculator {
 
-    private var firstNumber: Double = 0.0
-    private var secondNumber: Double = 0.0
+    override var display = ObservableField("0")
+
+    private var firstNumber: BigDecimal = BigDecimal.ZERO
     private var previousOperation: Operation? = null
 
+    private fun currentValue(): BigDecimal {
+        return display.get()?.toBigDecimalOrNull() ?: BigDecimal.ZERO
+    }
 
     override fun addDigit(dig: Int) {
-        val currentNumber = display.get() ?: "0"
-        display.set(if(currentNumber == "0") "$dig" else currentNumber + dig)
+        val current = display.get() ?: "0"
+        display.set(if (current == "0") "$dig" else "$current$dig")
     }
 
     override fun addPoint() {
-        val currentNumber = display.get() ?: "0"
-        if(!currentNumber.contains("."))
-            display.set("$currentNumber.")
+        val current = display.get() ?: "0"
+        if (!current.contains(".")) {
+            display.set("$current.")
+        }
     }
 
     override fun addOperation(op: Operation) {
-        if(previousOperation != null)
+
+        if (op == Operation.NEG) {
+            val value = currentValue().negate()
+            display.set(formatResult(value))
+            return
+        }
+
+        if (previousOperation != null) {
             compute()
-        if(op == Operation.NEG){
-            firstNumber = display.get()?.toDoubleOrNull() ?: 0.0
-            previousOperation = op
         }
-        else {
-            firstNumber = display.get()?.toDoubleOrNull() ?: 0.0
-            previousOperation = op
-            display.set("0")
-        }
+
+        firstNumber = currentValue()
+        previousOperation = op
+        display.set("0")
     }
 
     override fun compute() {
-        secondNumber = display.get()?.toDoubleOrNull() ?: 0.0
-        if (previousOperation == Operation.DIV && secondNumber == 0.0) {
+
+        val secondNumber = currentValue()
+
+        if (previousOperation == Operation.DIV && secondNumber == BigDecimal.ZERO) {
             display.set("Не определен")
             previousOperation = null
             return
         }
-        val result = when(previousOperation){
-            Operation.ADD -> firstNumber + secondNumber
-            Operation.SUB -> firstNumber - secondNumber
-            Operation.MUL -> firstNumber * secondNumber
-            Operation.DIV -> firstNumber / secondNumber
-            Operation.PERC -> firstNumber * secondNumber / 100
-            Operation.NEG -> -secondNumber
+
+        val result = when (previousOperation) {
+            Operation.ADD -> firstNumber.add(secondNumber)
+            Operation.SUB -> firstNumber.subtract(secondNumber)
+            Operation.MUL -> firstNumber.multiply(secondNumber)
+
+            Operation.DIV ->
+                firstNumber.divide(secondNumber, 10, RoundingMode.HALF_UP)
+
+            Operation.PERC ->
+                firstNumber.multiply(secondNumber)
+                    .divide(BigDecimal(100))
+
             null -> secondNumber
+            Operation.NEG -> secondNumber
         }
-        display.set(resultFormated(result))
+
+        display.set(formatResult(result))
+
         firstNumber = result
         previousOperation = null
     }
@@ -63,14 +83,11 @@ class CalculatorViewModel: BaseObservable(), Calculator {
 
     override fun reset() {
         clear()
-        firstNumber = 0.0
-        secondNumber = 0.0
+        firstNumber = BigDecimal.ZERO
         previousOperation = null
     }
-    private fun resultFormated(value: Double): String{
-        return if(value == value.toInt().toDouble())
-            value.toInt().toString()
-        else
-            value.toString()
+
+    private fun formatResult(value: BigDecimal): String {
+        return value.stripTrailingZeros().toPlainString()
     }
 }
